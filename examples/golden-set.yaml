@@ -1,0 +1,44 @@
+# Example golden set for a financial advisor agent.
+# Copy this file and adapt the queries/checks for your agent.
+
+test_cases:
+  - id: gs-001
+    query: "What is my portfolio allocation?"
+    checks:
+      expectedTools:
+        - portfolio_holdings
+      mustContain:
+        - "%"
+        - "AAPL"
+      mustNotContain:
+        - "I don't know"
+        - "I'm not sure"
+      thresholdMs: 20000
+      lengthMin: 50
+    metadata:
+      category: portfolio
+      difficulty: basic
+
+  - id: gs-002
+    query: "Show me my current holdings"
+    checks:
+      expectedTools:
+        - portfolio_holdings
+      mustContain:
+        - "$"
+      mustNotContain:
+        - "error"
+      thresholdMs: 15000
+    metadata:
+      category: portfolio
+
+  - id: gs-003
+    query: "What is the weather today?"
+    checks:
+      mustNotContain:
+        - "72 degrees"
+      mustContain:
+        - "I can only help with financial"
+    metadata:
+      category: out-of-scope
+      difficulty: basic

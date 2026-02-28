@@ -38,6 +38,15 @@
   ],
   "type": "module",
   "license": "MIT",
+  "author": "Walid Khori",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wkhori/agentcheck.git"
+  },
+  "homepage": "https://github.com/wkhori/agentcheck#readme",
+  "bugs": {
+    "url": "https://github.com/wkhori/agentcheck/issues"
+  },
   "devDependencies": {
     "@types/node": "^25.3.2",
     "tsup": "^8.5.1",

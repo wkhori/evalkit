@@ -64,10 +64,6 @@ export function runChecks(input: RunChecksInput): CheckSuiteResult {
     results.push(schemaMatch(input.schema));
   }
 
-  if (input.responseText !== undefined && (input.copOutPhrases !== undefined || input.responseText !== undefined) && input.mustContain === undefined && input.mustNotContain === undefined && input.regexPatterns === undefined && input.lengthMin === undefined && input.lengthMax === undefined) {
-    // nonEmpty is only auto-run if explicitly requested via copOutPhrases
-  }
-
   if (input.copOutPhrases !== undefined && input.responseText !== undefined) {
     results.push(nonEmpty({ responseText: input.responseText, copOutPhrases: input.copOutPhrases }));
   }
