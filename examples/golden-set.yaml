@@ -2,7 +2,7 @@
 # Copy this file and adapt the queries/checks for your agent.
 
 test_cases:
-  - id: gs-001
+  - id: eval-001
     query: "What is my portfolio allocation?"
     checks:
       expectedTools:
@@ -19,7 +19,7 @@ test_cases:
       category: portfolio
       difficulty: basic
 
-  - id: gs-002
+  - id: eval-002
     query: "Show me my current holdings"
     checks:
       expectedTools:
@@ -32,7 +32,7 @@ test_cases:
     metadata:
       category: portfolio
 
-  - id: gs-003
+  - id: eval-003
     query: "What is the weather today?"
     checks:
       mustNotContain:

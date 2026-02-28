@@ -1,5 +1,5 @@
 /**
- * Example eval script for agentcheck.
+ * Example eval script for evalkit.
  *
  * This shows how to wire up your agent and run a golden set.
  * Adapt the agent function to call your actual agent.
@@ -7,7 +7,7 @@
  * Run with: npx tsx examples/eval.ts
  */
 
-import { runSuite, printSuiteResult, AgentFn } from 'agentcheck';
+import { runSuite, printSuiteResult, AgentFn } from 'evalkit';
 
 // Replace this with your actual agent call
 const agent: AgentFn = async (query) => {

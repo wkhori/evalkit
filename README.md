@@ -1,4 +1,4 @@
-# agentcheck
+# evalkit
 
 Lightweight deterministic evaluators for AI agents. Binary pass/fail checks, zero dependencies, no LLM cost.
 
@@ -9,13 +9,13 @@ Before you reach for LLM-as-judge or complex scoring rubrics, you should have 10
 ## Install
 
 ```bash
-npm install agentcheck
+npm install evalkit
 ```
 
 ## Quick Start
 
 ```typescript
-import { runSuite, printSuiteResult } from 'agentcheck';
+import { runSuite, printSuiteResult } from 'evalkit';
 
 const result = await runSuite({
   cases: 'golden-set.yaml',
@@ -30,8 +30,8 @@ const result = await runSuite({
 });
 
 printSuiteResult(result);
-// gs-001  What is my portfolio allocation?           PASS  1.2s
-// gs-002  Show me my current holdings                FAIL  3.4s
+// eval-001  What is my portfolio allocation?           PASS  1.2s
+// eval-002  Show me my current holdings                FAIL  3.4s
 //           content_match: Missing: $
 //
 // 1/2 passed (4.6s)
@@ -51,7 +51,7 @@ Load test cases from JSON or YAML and run them against your agent.
 {
   "test_cases": [
     {
-      "id": "gs-001",
+      "id": "eval-001",
       "query": "What is my portfolio allocation?",
       "checks": {
         "expectedTools": ["portfolio_holdings"],
@@ -70,7 +70,7 @@ Load test cases from JSON or YAML and run them against your agent.
 ```yaml
 # golden-set.yaml
 test_cases:
-  - id: gs-001
+  - id: eval-001
     query: "What is my portfolio allocation?"
     checks:
       expectedTools:
@@ -100,7 +100,7 @@ interface AgentResult {
 }
 ```
 
-You provide the adapter — agentcheck never touches your SDK, keys, or auth.
+You provide the adapter — evalkit never touches your SDK, keys, or auth.
 
 ### `runSuite()` options
 
@@ -154,7 +154,7 @@ Every evaluator returns an `EvalResult` with `passed: boolean` and `details: str
 ### Core checks
 
 ```typescript
-import { toolSelection, contentMatch, negativeMatch, latency } from 'agentcheck';
+import { toolSelection, contentMatch, negativeMatch, latency } from 'evalkit';
 
 toolSelection({
   expected: ['search', 'summarize'],
@@ -181,7 +181,7 @@ latency({ latencyMs: 1200, thresholdMs: 5000 });
 ### Format checks
 
 ```typescript
-import { jsonValid, schemaMatch, nonEmpty, lengthBounds } from 'agentcheck';
+import { jsonValid, schemaMatch, nonEmpty, lengthBounds } from 'evalkit';
 
 jsonValid({ text: '{"valid": true}', requireObject: true });
 // passed: true
@@ -203,7 +203,7 @@ lengthBounds({ responseText: 'Hello world', min: 5, max: 1000 });
 ### Pattern & behavioral checks
 
 ```typescript
-import { regexMatch, toolCallCount, costBudget } from 'agentcheck';
+import { regexMatch, toolCallCount, costBudget } from 'evalkit';
 
 regexMatch({
   responseText: 'Contact: user@example.com',
@@ -224,7 +224,7 @@ costBudget({ actual: 5000, budget: 10000 });
 Run any combination of checks at once. Only runs checks for which inputs are provided.
 
 ```typescript
-import { runChecks } from 'agentcheck';
+import { runChecks } from 'evalkit';
 
 const result = runChecks({
   responseText: 'Your portfolio has 15 holdings',
@@ -243,7 +243,7 @@ const result = runChecks({
 Each evaluator has a `create*Evaluator` factory for reuse across test cases:
 
 ```typescript
-import { createContentMatchEvaluator } from 'agentcheck';
+import { createContentMatchEvaluator } from 'evalkit';
 
 const checkContent = createContentMatchEvaluator({
   mustContain: ['portfolio', 'holdings', 'allocation'],
@@ -256,12 +256,12 @@ const r2 = checkContent({ responseText: response2 });
 
 ## Integrating with your agent
 
-agentcheck is SDK-agnostic. You write a thin adapter function that calls your agent and returns an `AgentResult`. Here are patterns for common setups:
+evalkit is SDK-agnostic. You write a thin adapter function that calls your agent and returns an `AgentResult`. Here are patterns for common setups:
 
 ### Any agent (generic pattern)
 
 ```typescript
-import { runSuite, printSuiteResult, AgentFn } from 'agentcheck';
+import { runSuite, printSuiteResult, AgentFn } from 'evalkit';
 
 const agent: AgentFn = async (query) => {
   const start = Date.now();
@@ -283,7 +283,7 @@ printSuiteResult(result);
 
 ```typescript
 // eval.ts — run with: npx tsx eval.ts
-import { runSuite, printSuiteResult } from 'agentcheck';
+import { runSuite, printSuiteResult } from 'evalkit';
 
 const result = await runSuite({
   cases: 'golden-set.yaml',
@@ -305,7 +305,7 @@ process.exit(result.failed > 0 ? 1 : 0);
 - **Binary results** — every check returns `passed: boolean`
 - **Deterministic** — same input always produces same output
 - **CI-friendly** — fast enough to run on every commit
-- **SDK-agnostic** — you provide the agent callback, agentcheck runs the checks
+- **SDK-agnostic** — you provide the agent callback, evalkit runs the checks
 
 ## License
 

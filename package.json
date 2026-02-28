@@ -1,5 +1,5 @@
 {
-  "name": "agentcheck",
+  "name": "evalkit",
   "version": "0.1.0",
   "description": "Lightweight deterministic evaluators for AI agents. Binary pass/fail checks, zero dependencies, no LLM cost.",
   "main": "./dist/index.cjs",
@@ -34,7 +34,7 @@
     "deterministic",
     "langchain",
     "llm",
-    "agentcheck"
+    "evalkit"
   ],
   "type": "module",
   "license": "MIT",
