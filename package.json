@@ -1,6 +1,6 @@
 {
   "name": "evalkit",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Lightweight deterministic evaluators for AI agents. Binary pass/fail checks, zero dependencies, no LLM cost.",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
