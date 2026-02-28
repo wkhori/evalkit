@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { runSuite } from '../src/runner/run-suite';
 import { AgentFn, AgentResult, CaseResult } from '../src/runner/types';
 import { SuiteConfig } from '../src/runner/schema';
@@ -21,6 +21,7 @@ describe('runSuite', () => {
         ],
       },
       agent: simpleAgent,
+      print: false,
     });
 
     expect(result.total).toBe(2);
@@ -44,6 +45,7 @@ describe('runSuite', () => {
         ],
       },
       agent: trackingAgent,
+      print: false,
     });
 
     expect(queries).toEqual(['First query', 'Second query']);
@@ -77,6 +79,7 @@ describe('runSuite', () => {
         }],
       },
       agent,
+      print: false,
     });
 
     expect(result.passed).toBe(1);
@@ -99,6 +102,7 @@ describe('runSuite', () => {
         ],
       },
       agent,
+      print: false,
     });
 
     expect(result.passed).toBe(2);
@@ -118,6 +122,7 @@ describe('runSuite', () => {
         ],
       },
       agent: failingAgent,
+      print: false,
     });
 
     expect(result.total).toBe(1);
@@ -138,6 +143,7 @@ describe('runSuite', () => {
       },
       agent: simpleAgent,
       onCaseComplete: (result) => completed.push(result),
+      print: false,
     });
 
     expect(completed).toHaveLength(2);
@@ -168,6 +174,7 @@ describe('runSuite', () => {
       },
       agent: slowAgent,
       concurrency: 2,
+      print: false,
     });
 
     expect(maxConcurrent).toBeGreaterThan(1);
@@ -190,6 +197,7 @@ describe('runSuite', () => {
         }],
       },
       agent,
+      print: false,
     });
 
     expect(result.cases[0].passed).toBe(true);
@@ -204,6 +212,7 @@ describe('runSuite', () => {
         ],
       },
       agent: simpleAgent,
+      print: false,
     });
 
     expect(result.cases[0].passed).toBe(true);
@@ -214,6 +223,7 @@ describe('runSuite', () => {
       cases: { test_cases: [{ id: 'tc-001', query: 'Hello', checks: {} }] },
       agent: simpleAgent,
       name: 'My Test Suite',
+      print: false,
     });
 
     expect(result.name).toBe('My Test Suite');
@@ -223,6 +233,7 @@ describe('runSuite', () => {
     const result = await runSuite({
       cases: { name: 'Config Suite', test_cases: [{ id: 'tc-001', query: 'Hello', checks: {} }] },
       agent: simpleAgent,
+      print: false,
     });
 
     expect(result.name).toBe('Config Suite');
@@ -239,6 +250,7 @@ describe('runSuite', () => {
         }],
       },
       agent: simpleAgent,
+      print: false,
     });
 
     expect(result.cases[0].metadata).toEqual({ category: 'greeting' });
@@ -248,8 +260,59 @@ describe('runSuite', () => {
     const result = await runSuite({
       cases: { test_cases: [{ id: 'tc-001', query: 'Hello', checks: {} }] },
       agent: simpleAgent,
+      print: false,
     });
 
     expect(result.duration).toBeGreaterThanOrEqual(0);
+  });
+
+  describe('live printing', () => {
+    let consoleSpy: ReturnType<typeof vi.spyOn>;
+    let output: string[];
+
+    beforeEach(() => {
+      output = [];
+      consoleSpy = vi.spyOn(console, 'log').mockImplementation((...args: unknown[]) => {
+        output.push(args.map(String).join(' '));
+      });
+    });
+
+    afterEach(() => {
+      consoleSpy.mockRestore();
+    });
+
+    it('prints results live by default', async () => {
+      await runSuite({
+        cases: {
+          test_cases: [
+            { id: 'tc-001', query: 'Hello', checks: { mustContain: ['Response'] } },
+            { id: 'tc-002', query: 'World', checks: { mustContain: ['missing'] } },
+          ],
+        },
+        agent: simpleAgent,
+      });
+
+      const combined = output.join('\n');
+      expect(combined).toContain('Suite:');
+      expect(combined).toContain('tc-001');
+      expect(combined).toContain('PASS');
+      expect(combined).toContain('tc-002');
+      expect(combined).toContain('FAIL');
+      expect(combined).toContain('1/2 passed');
+    });
+
+    it('prints nothing when print: false', async () => {
+      await runSuite({
+        cases: {
+          test_cases: [
+            { id: 'tc-001', query: 'Hello', checks: {} },
+          ],
+        },
+        agent: simpleAgent,
+        print: false,
+      });
+
+      expect(output).toHaveLength(0);
+    });
   });
 });

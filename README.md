@@ -15,8 +15,9 @@ npm install evalkit
 ## Quick Start
 
 ```typescript
-import { runSuite, printSuiteResult } from 'evalkit';
+import { runSuite } from 'evalkit';
 
+// Results stream to console as each case completes
 const result = await runSuite({
   cases: 'golden-set.yaml',
   agent: async (query) => {
@@ -28,8 +29,6 @@ const result = await runSuite({
     };
   },
 });
-
-printSuiteResult(result);
 // eval-001  What is my portfolio allocation?           PASS  1.2s
 // eval-002  Show me my current holdings                FAIL  3.4s
 //           content_match: Missing: $
@@ -110,6 +109,7 @@ const result = await runSuite({
   agent: myAgentFn,             // Your (query: string) => Promise<AgentResult> callback
   name: 'Portfolio Suite',      // Optional suite name (overrides name from file)
   concurrency: 3,              // Run cases in parallel (default: 1, sequential)
+  print: true,                 // Stream results to console (default: true)
   onCaseComplete: (caseResult) => {
     console.log(`${caseResult.id}: ${caseResult.passed ? 'PASS' : 'FAIL'}`);
   },                            // Optional progress callback, fired after each case
@@ -261,7 +261,7 @@ evalkit is SDK-agnostic. You write a thin adapter function that calls your agent
 ### Any agent (generic pattern)
 
 ```typescript
-import { runSuite, printSuiteResult, AgentFn } from 'evalkit';
+import { runSuite, AgentFn } from 'evalkit';
 
 const agent: AgentFn = async (query) => {
   const start = Date.now();
@@ -276,21 +276,19 @@ const agent: AgentFn = async (query) => {
 };
 
 const result = await runSuite({ cases: 'golden-set.yaml', agent });
-printSuiteResult(result);
 ```
 
 ### CI / GitHub Actions
 
 ```typescript
 // eval.ts — run with: npx tsx eval.ts
-import { runSuite, printSuiteResult } from 'evalkit';
+import { runSuite } from 'evalkit';
 
 const result = await runSuite({
   cases: 'golden-set.yaml',
   agent: myAgentFn,
 });
 
-printSuiteResult(result);
 process.exit(result.failed > 0 ? 1 : 0);
 ```
 

@@ -2,6 +2,7 @@ import { runChecks, RunChecksInput } from '../checks/run-checks';
 import { SuiteConfig, TestCase } from './schema';
 import { AgentFn, AgentResult, CaseResult, SuiteResult } from './types';
 import { loadCases } from './loader';
+import { printCaseResult, printSuiteHeader, printSuiteSummary } from './reporter';
 
 export interface RunSuiteOptions {
   cases: string | SuiteConfig;
@@ -9,6 +10,8 @@ export interface RunSuiteOptions {
   name?: string;
   concurrency?: number;
   onCaseComplete?: (result: CaseResult) => void;
+  /** Print results live to console. Default: true. */
+  print?: boolean;
 }
 
 /** Run a suite of test cases against an agent function. */
@@ -19,17 +22,29 @@ export async function runSuite(options: RunSuiteOptions): Promise<SuiteResult> {
 
   const suiteName = options.name ?? config.name ?? 'unnamed';
   const concurrency = options.concurrency ?? 1;
+  const shouldPrint = options.print !== false;
   const startTime = Date.now();
+
+  if (shouldPrint) {
+    printSuiteHeader(suiteName);
+  }
 
   const cases = config.test_cases;
   const results: CaseResult[] = [];
+
+  const onCase = (result: CaseResult): void => {
+    if (shouldPrint) {
+      printCaseResult(result);
+    }
+    options.onCaseComplete?.(result);
+  };
 
   if (concurrency <= 1) {
     // Sequential execution
     for (const tc of cases) {
       const result = await runCase(tc, options.agent);
       results.push(result);
-      options.onCaseComplete?.(result);
+      onCase(result);
     }
   } else {
     // Concurrent execution with limited concurrency
@@ -39,7 +54,7 @@ export async function runSuite(options: RunSuiteOptions): Promise<SuiteResult> {
         const currentIdx = idx++;
         const result = await runCase(cases[currentIdx], options.agent);
         results.push(result);
-        options.onCaseComplete?.(result);
+        onCase(result);
       }
     };
 
@@ -53,7 +68,7 @@ export async function runSuite(options: RunSuiteOptions): Promise<SuiteResult> {
   const passedCount = results.filter((r) => r.passed).length;
   const duration = Date.now() - startTime;
 
-  return {
+  const suiteResult: SuiteResult = {
     name: suiteName,
     passed: passedCount,
     failed: results.length - passedCount,
@@ -61,6 +76,12 @@ export async function runSuite(options: RunSuiteOptions): Promise<SuiteResult> {
     cases: results,
     duration,
   };
+
+  if (shouldPrint) {
+    printSuiteSummary(suiteResult);
+  }
+
+  return suiteResult;
 }
 
 async function runCase(tc: TestCase, agent: AgentFn): Promise<CaseResult> {
