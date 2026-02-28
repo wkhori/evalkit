@@ -1,6 +1,6 @@
 {
   "name": "evalkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Lightweight deterministic evaluators for AI agents. Binary pass/fail checks, zero dependencies, no LLM cost.",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -41,11 +41,11 @@
   "author": "Walid Khori",
   "repository": {
     "type": "git",
-    "url": "https://github.com/wkhori/agentcheck.git"
+    "url": "https://github.com/wkhori/evalkit.git"
   },
-  "homepage": "https://github.com/wkhori/agentcheck#readme",
+  "homepage": "https://github.com/wkhori/evalkit#readme",
   "bugs": {
-    "url": "https://github.com/wkhori/agentcheck/issues"
+    "url": "https://github.com/wkhori/evalkit/issues"
   },
   "devDependencies": {
     "@types/node": "^25.3.2",
